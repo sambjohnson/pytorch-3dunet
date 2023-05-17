@@ -72,9 +72,9 @@ loaders:
   label_internal_path: /label
   # configuration of the train loader
   train:
-    # path to the training datasets
+    # path to the training dataset; DIFFERENT FOR YOU.
     file_paths:
-      - PATH_TO_TRAIN_DIR
+      - /scratch/groups/jyeatman/samjohns-projects/unet3d/data/osfstorage-archive-train
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
@@ -126,9 +126,9 @@ loaders:
 
   # configuration of the val loader
   val:
-    # path to the val datasets
+    # path to the val datasets, DIFFERENT FOR YOU
     file_paths:
-      - PATH_TO_VAL_DIR
+      - /scratch/groups/jyeatman/samjohns-projects/unet3d/data/osfstorage-archive-val
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
