@@ -18,15 +18,15 @@ predictor:
   name: 'StandardPredictor'
 loaders:
   # save predictions to output_dir
-  output_dir: PATH_TO_OUTPUT_DIR
+  output_dir: /scratch/groups/jyeatman/samjohns-projects/unet3d/data/test-checkpoints
   # batch dimension; if number of GPUs is N > 1, then a batch_size of N * batch_size will automatically be taken for DataParallel
   batch_size: 1
   # how many subprocesses to use for data loading
-  num_workers: 8
+  num_workers: 2
   # test loaders configuration
   test:
     file_paths:
-      - PATH_TO_TEST_DIR
+      - /scratch/groups/jyeatman/samjohns-projects/unet3d/data/osfstorage-archive-test
 
     slice_builder:
       name: SliceBuilder
