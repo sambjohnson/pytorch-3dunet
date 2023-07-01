@@ -2,14 +2,16 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import tests.import_from_source as test_import
+
 
 import pytorch3dunet
-import pytorch3dunet.unet3d as u3  # !
-from pytorch3dunet import predict
-from pytorch3dunet import train
+# import pytorch3dunet.unet3d as u3  # !
+# from pytorch3dunet import predict
+# from pytorch3dunet import train
 
-from pytorch3dunet.unet3d import trainer as trainer
-from pytorch3dunet.unet3d.config import _load_config_yaml
+# from pytorch3dunet.unet3d import trainer as trainer
+# from pytorch3dunet.unet3d.config import _load_config_yaml
 
 from torchsummary import summary
 import torch
@@ -126,8 +128,8 @@ def main():
         train_config_fp = f'{data_dir}/pytorch-3dunet/resources/3DUnet_confocal_boundary/train_config.yml'
 
     else: 
-        data_dir = '/home/weiner/bparker/code/models/pytorch-3dunet'
-        h5_dir = '/home/weiner/HCP/projects/CNL_scalpel/h5'
+        data_dir = '/Users/benparker/Desktop/cnl/neurocluster/home/weiner/bparker/code/models/pytorch-3dunet'
+        h5_dir = '/Users/benparker/Desktop/cnl/neurocluster/home/weiner/HCP/projects/CNL_scalpel/h5'
         config_dir = './3DUnet_confocal_boundary'
         test_config_filename = 'mris_test_config.yml'
         train_config_filename = 'mris_train_config.yml'
@@ -136,7 +138,7 @@ def main():
 
 
     # load config file
-    train_config = _load_config_yaml(train_fp)
+    train_config = pytorch3dunet.unet3d.config._load_config_yaml(train_fp)
 
     # modify trainer transforms
     train_config_modified = train_config.copy()
@@ -152,10 +154,10 @@ def main():
      {'name': 'ToTensor', 'expand_dims': False}]}
     
     # create trainer
-    trainer = u3.trainer.create_trainer(train_config_modified)
+    trainer = pytorch3dunet.unet3d.u3.trainer.create_trainer(train_config_modified)
 
     # get model
-    model = u3.model.get_model(train_config['model'])
+    model = pytorch3dunet.unet3d.u3.model.get_model(train_config['model'])
 
     # load subjects
     train_hcp_subject_h5s = sorted(os.listdir(f"{h5_dir}/train"))
