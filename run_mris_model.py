@@ -131,10 +131,10 @@ def main():
         data_dir = '/Users/benparker/Desktop/cnl/neurocluster/home/weiner/bparker/code/models/pytorch-3dunet'
         h5_dir = '/Users/benparker/Desktop/cnl/neurocluster/home/weiner/HCP/projects/CNL_scalpel/h5'
         config_dir = './3DUnet_confocal_boundary'
-        test_config_filename = 'mris_test_config.yml'
-        train_config_filename = 'mris_train_config.yml'
+        test_config_filename = 'mris_config_test.yml'
+        train_config_filename = 'mris_config_train.yml'
         test__fp = f'{data_dir}/data/osfstorage-archive-test/N_511_final_crop_ds2.h5'
-        train_fp = f'{data_dir}/mris_train_config.yml'
+        train_fp = f'{data_dir}/mris_config_train.yml'
 
 
     # load config file
@@ -154,7 +154,7 @@ def main():
      {'name': 'ToTensor', 'expand_dims': False}]}
     
     # create trainer
-    trainer = pytorch3dunet.unet3d.u3.trainer.create_trainer(train_config_modified)
+    trainer = pytorch3dunet.unet3d.trainer.create_trainer(train_config_modified)
 
     # get model
     model = pytorch3dunet.unet3d.u3.model.get_model(train_config['model'])

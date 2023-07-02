@@ -9,8 +9,11 @@ from skimage import measure
 from torch import nn
 from tqdm import tqdm
 
-from pytorch3dunet.datasets.hdf5 import AbstractHDF5Dataset
-from pytorch3dunet.datasets.utils import SliceBuilder
+# Changed import from pytorch3dunet.datasets.hdf5 import AbstractHDF5Dataset to
+# import whole module to avoid circular import error
+import pytorch3dunet.datasets.hdf5
+# likewise for SliceBuilder
+import pytorch3dunet.datasets.utils 
 from pytorch3dunet.unet3d.model import UNet2D
 from pytorch3dunet.unet3d.utils import get_logger
 
@@ -73,7 +76,7 @@ class StandardPredictor(_AbstractPredictor):
         super().__init__(model, output_dir, config, **kwargs)
 
     def __call__(self, test_loader):
-        assert isinstance(test_loader.dataset, AbstractHDF5Dataset)
+        assert isinstance(test_loader.dataset, pytorch3dunet.datasets.hdf5.AbstractHDF5Dataset)
         logger.info(f"Processing '{test_loader.dataset.file_path}'...")
         start = time.time()
 
@@ -221,7 +224,7 @@ class LazyPredictor(StandardPredictor):
         z, y, x = prediction_map.shape[1:]
         # take slices which are 1/27 of the original volume
         patch_shape = (z // 3, y // 3, x // 3)
-        for index in SliceBuilder._build_slices(prediction_map, patch_shape=patch_shape, stride_shape=patch_shape):
+        for index in pytorch3dunet.datasets.utils.SliceBuilder._build_slices(prediction_map, patch_shape=patch_shape, stride_shape=patch_shape):
             logger.info(f'Normalizing slice: {index}')
             prediction_map[index] /= normalization_mask[index]
             # make sure to reset the slice that has been visited already in order to avoid 'double' normalization

@@ -5,7 +5,9 @@ import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.tensorboard import SummaryWriter
 
-from pytorch3dunet.datasets.utils import get_train_loaders
+# Changed to import whole utils module instead of from .. import get_train_loaders 
+# to avoid circular import
+import pytorch3dunet.datasets.utils
 from pytorch3dunet.unet3d.losses import get_loss_criterion
 from pytorch3dunet.unet3d.metrics import get_evaluation_metric
 from pytorch3dunet.unet3d.model import get_model, UNet2D
@@ -34,7 +36,7 @@ def create_trainer(config):
     eval_criterion = get_evaluation_metric(config)
 
     # Create data loaders
-    loaders = get_train_loaders(config)
+    loaders = pytorch3dunet.datasets.utils.get_train_loaders(config)
 
     # Create the optimizer
     optimizer = create_optimizer(config['optimizer'], model)
