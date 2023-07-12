@@ -142,16 +142,16 @@ def main():
 
     # modify trainer transforms
     train_config_modified = train_config.copy()
-    train_config_modified['transformer'] =  {'raw': [{'name': 'Standardize'},
-     {'name': 'ToTensor', 'expand_dims': True}],
-    'label': [{'name': 'RandomFlip'},
-     {'name': 'RandomRotate90'},
-     {'name': 'RandomRotate',
-      'axes': [[2, 1]],
-      'angle_spectrum': 45,
-      'mode': 'reflect'},
-     {'name': 'StandardLabelToBoundary', 'append_label': True},
-     {'name': 'ToTensor', 'expand_dims': False}]}
+    #train_config_modified['transformer'] =  {'raw': [{'name': 'Standardize'},
+     #{'name': 'ToTensor', 'expand_dims': True}],
+    #'label': [{'name': 'RandomFlip'},
+     #{'name': 'RandomRotate90'},
+     #{'name': 'RandomRotate',
+      #'axes': [[2, 1]],
+      #'angle_spectrum': 45,
+      #'mode': 'reflect'},
+     #{'name': 'StandardLabelToBoundary', 'append_label': True},
+     #{'name': 'ToTensor', 'expand_dims': False}]}
     
     # create trainer
     trainer = pytorch3dunet.unet3d.trainer.create_trainer(train_config_modified)
