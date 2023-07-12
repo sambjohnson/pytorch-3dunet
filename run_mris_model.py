@@ -128,8 +128,8 @@ def main():
         train_config_fp = f'{data_dir}/pytorch-3dunet/resources/3DUnet_confocal_boundary/train_config.yml'
 
     else: 
-        data_dir = '/Users/benparker/Desktop/cnl/neurocluster/home/weiner/bparker/code/models/pytorch-3dunet'
-        h5_dir = '/Users/benparker/Desktop/cnl/neurocluster/home/weiner/HCP/projects/CNL_scalpel/h5'
+        data_dir = '/home/weiner/bparker/code/models/pytorch-3dunet'
+        h5_dir = '/home/weiner/HCP/projects/CNL_scalpel/h5'
         config_dir = './3DUnet_confocal_boundary'
         test_config_filename = 'mris_config_test.yml'
         train_config_filename = 'mris_config_train.yml'

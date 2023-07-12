@@ -5,9 +5,7 @@ import torch.nn as nn
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.utils.tensorboard import SummaryWriter
 
-# Changed to import whole utils module instead of from .. import get_train_loaders 
-# to avoid circular import
-import pytorch3dunet.datasets.utils
+from pytorch3dunet.datasets.utils import get_train_loaders
 from pytorch3dunet.unet3d.losses import get_loss_criterion
 from pytorch3dunet.unet3d.metrics import get_evaluation_metric
 from pytorch3dunet.unet3d.model import get_model, UNet2D
@@ -22,7 +20,7 @@ def create_trainer(config):
     # Create the model
     model = get_model(config['model'])
     # use DataParallel if more than 1 GPU available
-    if torch.cuda.device_count() > 1: # and not config['device'] == 'cpu': <-- BP throwing KeyError "device" not found in config
+    if torch.cuda.device_count() > 1 and not config['device'] == 'cpu':
         model = nn.DataParallel(model)
         logger.info(f'Using {torch.cuda.device_count()} GPUs for training')
         model.cuda()
@@ -36,7 +34,7 @@ def create_trainer(config):
     eval_criterion = get_evaluation_metric(config)
 
     # Create data loaders
-    loaders = pytorch3dunet.datasets.utils.get_train_loaders(config)
+    loaders = get_train_loaders(config)
 
     # Create the optimizer
     optimizer = create_optimizer(config['optimizer'], model)

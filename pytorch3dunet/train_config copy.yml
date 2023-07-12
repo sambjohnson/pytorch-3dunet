@@ -8,7 +8,7 @@ model:
   # number of input channels to the model
   in_channels: 1
   # number of output channels
-  out_channels: 8  # NOTE: set to 8 for testing on mock dataset. Real value will be 102.
+  out_channels: 1
   # determines the order of operators in a single layer (crg - Conv3d+ReLU+GroupNorm)
   layer_order: gcr
   # initial number of feature maps
@@ -23,7 +23,7 @@ loss:
   # a target value that is ignored and does not contribute to the input gradient
   ignore_index: null
   # skip the last channel in the target (i.e. when last channel contains data not relevant for the loss)
-  skip_last_target: false
+  skip_last_target: true
 optimizer:
   # initial learning rate
   learning_rate: 0.0002
@@ -32,13 +32,13 @@ optimizer:
 # evaluation metric
 eval_metric:
   # use AdaptedRandError metric
-  name: DiceCoefficient
+  name: BoundaryAdaptedRandError
   # probability maps threshold
   threshold: 0.4
   # use the last target channel to compute the metric
-  use_last_target: false
+  use_last_target: true
   # use only the first channel for computing the metric
-  use_first_input: false
+  use_first_input: true
 lr_scheduler:
   name: ReduceLROnPlateau
   # make sure to use the 'min' mode cause lower AdaptedRandError is better
@@ -49,7 +49,7 @@ trainer:
   # model with lower eval score is considered better
   eval_score_higher_is_better: False
   # path to the checkpoint directory
-  checkpoint_dir: /home/weiner/HCP/projects/CNL_scalpel/checkpoints
+  checkpoint_dir: CHECKPOINT_DIR
   # path to latest checkpoint; if provided the training will be resumed from that checkpoint
   resume: null
   # path to the best_checkpoint.pytorch; to be used for fine-tuning the model with additional ground truth
@@ -64,8 +64,6 @@ trainer:
   max_num_iterations: 150000
 # Configure training and validation loaders
 loaders:
-  # type of loader - StandardHDF5Dataset or LazyHDF5Dataset
-  dataset: LazyHDF5Dataset
   # how many subprocesses to use for data loading
   num_workers: 8
   # path to the raw data within the H5
@@ -74,82 +72,84 @@ loaders:
   label_internal_path: /label
   # configuration of the train loader
   train:
-    # path to the training datasets
+    # path to the training dataset; DIFFERENT FOR YOU.
     file_paths:
-      - /home/weiner/HCP/projects/CNL_scalpel/h5/train
+      - /scratch/groups/jyeatman/samjohns-projects/unet3d/data/osfstorage-archive-train
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [256, 256, 256]
+      patch_shape: [80, 170, 170]
       # train stride between patches
-      stride_shape: [0, 0, 0]
+      stride_shape: [20, 40, 40]
       # minimum volume of the labels in the patch
-      threshold: 0.00
+      threshold: 0.6
       # probability of accepting patches which do not fulfil the threshold criterion
-      slack_acceptance: 0.00
+      slack_acceptance: 0.01
 
     transformer:
       raw:
-       - name: Standardize
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        - name: Standardize
+        - name: RandomFlip
+        - name: RandomRotate90
+        - name: RandomRotate
+          # rotate only in ZY plane due to anisotropy
+          axes: [[2, 1]]
+          angle_spectrum: 45
+          mode: reflect
+        - name: ElasticDeformation
+          spline_order: 3
+        - name: GaussianBlur3D
+          execution_probability: 0.5
+        - name: AdditiveGaussianNoise
+          execution_probability: 0.2
+        - name: AdditivePoissonNoise
+          execution_probability: 0.2
         - name: ToTensor
-          expand_dims: false
+          expand_dims: true
       label:
-        
-        
-        
-        
-        
-
-
-
-
-
-
-
+        - name: RandomFlip
+        - name: RandomRotate90
+        - name: RandomRotate
+          # rotate only in ZY plane due to anisotropy
+          axes: [[2, 1]]
+          angle_spectrum: 45
+          mode: reflect
+        - name: ElasticDeformation
+          spline_order: 0
+        - name: StandardLabelToBoundary
+          # append original ground truth labels to the last channel (to be able to compute the eval metric)
+          append_label: true
         - name: ToTensor
           expand_dims: false
 
   # configuration of the val loader
   val:
-    # path to the val datasets
+    # path to the val datasets, DIFFERENT FOR YOU
     file_paths:
-      - /home/weiner/HCP/projects/CNL_scalpel/h5/val
+      - /scratch/groups/jyeatman/samjohns-projects/unet3d/data/osfstorage-archive-val
 
     # SliceBuilder configuration, i.e. how to iterate over the input volume patch-by-patch
     slice_builder:
       name: FilterSliceBuilder
       # train patch size given to the network (adapt to fit in your GPU mem, generally the bigger patch the better)
-      patch_shape: [256, 256, 256]
+      patch_shape: [80, 170, 170]
       # train stride between patches
-      stride_shape: [0, 0, 0]
+      stride_shape: [80, 170, 170]
       # minimum volume of the labels in the patch
-      threshold: 0.0
+      threshold: 0.6
       # probability of accepting patches which do not fulfil the threshold criterion
-      slack_acceptance: 0.000
+      slack_acceptance: 0.01
 
     # data augmentation
     transformer:
       raw:
         - name: Standardize
         - name: ToTensor
-          expand_dims: false
+          expand_dims: true
       label:
+        - name: StandardLabelToBoundary
+          append_label: true
         - name: ToTensor
           expand_dims: false
